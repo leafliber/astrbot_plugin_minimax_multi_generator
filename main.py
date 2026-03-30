@@ -38,10 +38,15 @@ class MiniMaxPlugin(Star):
             context: AstrBot 上下文
         """
         super().__init__(context)
+        
+        # 获取配置
         self.config = context.get_config() or {}
+        logger.info(f"读取到的配置: {self.config}")
+        logger.info(f"配置类型: {type(self.config)}")
         
         # 验证必需配置
         api_key = self.config.get('api_key')
+        logger.info(f"API Key: {api_key}")
         if not api_key:
             logger.error("未配置 MiniMax API Key，插件将无法正常工作")
             return
