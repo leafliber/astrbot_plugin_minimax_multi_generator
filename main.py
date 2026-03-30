@@ -2,7 +2,7 @@
 MiniMax 多模态生成器插件主类
 """
 
-from typing import Optional
+from typing import Any, Optional
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
@@ -30,16 +30,17 @@ from .tools import (
 class MiniMaxPlugin(Star):
     """MiniMax 多模态生成器插件"""
     
-    def __init__(self, context: Context, config: AstrBotConfig):
+    def __init__(self, context: Context, config: Optional[AstrBotConfig] = None):
         """
         初始化插件
         
         Args:
-            context: AstrBot 上下文
-            config: 插件配置
+            context: AstrBot 插件上下文
+            config: AstrBot 用户配置（可选）
         """
         super().__init__(context)
-        self.config = config or {}
+        self.context: Context = context
+        self.config: dict = config if config is not None else (context.config or {})
         
         # 验证必需配置
         api_key = self.config.get('api_key')
