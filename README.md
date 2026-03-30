@@ -132,26 +132,65 @@
 - **文件管理**: 自动保存生成文件，使用时间戳+UUID命名避免冲突
 - **错误处理**: 完善的异常捕获和用户友好提示
 - **消息发送**: 使用 AstrBot 原生消息组件，支持图片、视频、文件等多媒体类型
+- **按需加载**: 每个功能模块独立开关，运行时动态检查配置
+
+## 按需加载实现
+
+插件支持功能级别的按需加载控制：
+
+### 工作原理
+- 所有工具都会注册到 AstrBot，但在执行时会检查配置开关
+- 如果功能未启用，会立即返回友好的提示信息
+- 用户可以在 AstrBot WebUI 中随时开启/关闭各个功能
+
+### 配置示例
+```json
+{
+  "enable_speech": false,   // 关闭语音合成
+  "enable_image": true,     // 开启图像生成
+  "enable_video": false,    // 关闭视频生成
+  "enable_music": true      // 开启音乐生成
+}
+```
+
+### 优势
+- ✅ 无需重启插件即可控制功能
+- ✅ 避免误调用未开通的 API
+- ✅ 节省资源和费用
+- ✅ 用户友好的提示信息
 
 ## 文件结构
 
 ```
 astrbot_plugin_minimax_multi_generator/
-├── main.py                 # 主插件类
+├── main.py                 # 主插件类（工具注册和配置检查）
 ├── metadata.yaml           # 插件元数据
 ├── _conf_schema.json       # 配置 Schema
 ├── requirements.txt        # Python 依赖
 ├── README.md              # 说明文档
 ├── minimax_client.py      # API 客户端
 └── tools/                 # 工具模块
-    ├── __init__.py
-    ├── base.py            # 工具基类
-    ├── speech_synthesis.py
-    ├── text_to_image.py
-    ├── image_to_image.py
-    ├── video_generation.py
-    └── music_generation.py
+    ├── __init__.py        # 模块导出
+    ├── base.py            # 辅助函数（文件保存、消息发送等）
+    ├── speech_synthesis.py    # 语音合成工具
+    ├── text_to_image.py       # 文生图工具
+    ├── image_to_image.py      # 图生图工具
+    ├── video_generation.py    # 视频生成工具
+    └── music_generation.py    # 音乐生成工具
 ```
+
+## 模块化设计
+
+插件采用模块化设计，每个功能独立成模块：
+
+- **main.py**: 负责插件初始化、工具注册（`@filter.llm_tool` 装饰器）和配置检查
+- **tools/**: 每个工具的纯业务逻辑实现，便于测试和维护
+- **minimax_client.py**: MiniMax API 的封装客户端
+
+这种设计使得：
+- ✅ 代码职责清晰，易于维护
+- ✅ 工具逻辑独立，便于单元测试
+- ✅ 新增工具只需添加新模块，不影响其他功能
 
 ## 许可证
 

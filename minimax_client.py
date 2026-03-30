@@ -202,6 +202,70 @@ class MiniMaxClient:
         
         return await self._request("POST", "/v1/image_generation", json_data=payload)
     
+    async def text_to_image(
+        self,
+        prompt: str,
+        model: str = "image-01",
+        aspect_ratio: Optional[str] = None,
+        n: int = 1,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        文生图便捷方法
+        
+        Args:
+            prompt: 图像描述
+            model: 图像生成模型
+            aspect_ratio: 宽高比
+            n: 生成数量
+            
+        Returns:
+            包含图像 URL 或 base64 的响应
+        """
+        return await self.generate_image(
+            prompt=prompt,
+            model=model,
+            aspect_ratio=aspect_ratio,
+            n=n,
+            **kwargs
+        )
+    
+    async def image_to_image(
+        self,
+        prompt: str,
+        reference_image_url: str,
+        model: str = "image-01",
+        aspect_ratio: Optional[str] = None,
+        n: int = 1,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        图生图便捷方法
+        
+        Args:
+            prompt: 图像描述
+            reference_image_url: 参考图片 URL
+            model: 图像生成模型
+            aspect_ratio: 宽高比
+            n: 生成数量
+            
+        Returns:
+            包含图像 URL 或 base64 的响应
+        """
+        subject_reference = [{
+            "type": "character",
+            "image_file": reference_image_url
+        }]
+        
+        return await self.generate_image(
+            prompt=prompt,
+            model=model,
+            aspect_ratio=aspect_ratio,
+            n=n,
+            subject_reference=subject_reference,
+            **kwargs
+        )
+    
     # ==================== 视频生成 API ====================
     
     async def create_video_task(
@@ -255,6 +319,18 @@ class MiniMaxClient:
         """
         params = {"task_id": task_id}
         return await self._request("GET", "/v1/video_generation/query", params=params)
+    
+    async def download_video(self, file_id: str) -> bytes:
+        """
+        下载生成的视频（download_file 的别名）
+        
+        Args:
+            file_id: 文件 ID
+            
+        Returns:
+            视频二进制数据
+        """
+        return await self.download_file(file_id)
     
     async def download_file(self, file_id: str) -> bytes:
         """

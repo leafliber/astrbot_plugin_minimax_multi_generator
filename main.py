@@ -11,20 +11,21 @@ from astrbot.api.star import Context, Star, register
 
 from .minimax_client import MiniMaxClient
 from .tools import (
-    SpeechSynthesisTool,
-    TextToImageTool,
-    ImageToImageTool,
-    VideoGenerationTool,
-    MusicGenerationTool,
+    send_error,
+    execute_text_to_speech,
+    execute_text_to_image,
+    execute_image_to_image,
+    execute_generate_video,
+    execute_generate_music,
 )
 
 
 @register(
-    "astrbot_plugin_minimax_multi_generator",
-    "Leafiber",
+    "minimax_multi_generator",
+    "Your Name",
     "MiniMax 多模态生成器 - 支持语音合成、图像生成、视频生成和音乐生成",
     "1.0.0",
-    "https://github.com/Leafliber/astrbot_plugin_minimax_multi_generator"
+    "https://github.com/yourusername/astrbot_plugin_minimax_multi_generator"
 )
 class MiniMaxPlugin(Star):
     """MiniMax 多模态生成器插件"""
@@ -57,75 +58,193 @@ class MiniMaxPlugin(Star):
         self.data_dir = Path(context.get_data_dir())
         logger.info(f"插件数据目录: {self.data_dir}")
         
-        # 注册启用的工具
-        self._register_tools()
-        
         logger.info("MiniMax 多模态生成器插件已加载")
     
-    def _register_tools(self):
-        """根据配置注册启用的工具"""
+    # ==================== 语音合成工具 ====================
+    
+    @filter.llm_tool(name="text_to_speech")
+    async def text_to_speech(
+        self,
+        event: AstrMessageEvent,
+        text: str,
+        voice_id: Optional[str] = None,
+        speed: Optional[float] = None,
+        emotion: Optional[str] = None
+    ):
+        '''将文本转换为语音。支持多种音色、语速和情感表达。
+
+        Args:
+            text(string): 要转换为语音的文本内容
+            voice_id(string): 音色ID，默认为清新男声（male-qn-qingse）
+            speed(number): 语速，范围0.5-2.0，默认1.0
+            emotion(string): 情感表达（可选），如：happy, sad, angry等
+        '''
+        # 检查是否启用
+        if not self.config.get('enable_speech', True):
+            async for msg in send_error(event, "语音合成功能未启用，请在配置中开启"):
+                yield msg
+            return
         
-        # 语音合成工具
-        if self.config.get('enable_speech', True):
-            try:
-                tool = SpeechSynthesisTool(
-                    client=self.client,
-                    config=dict(self.config),
-                    data_dir=self.data_dir
-                )
-                self.context.add_llm_tools(tool)
-                logger.info("语音合成工具已注册")
-            except Exception as e:
-                logger.error(f"注册语音合成工具失败: {e}")
+        # 调用工具执行函数
+        async for msg in execute_text_to_speech(
+            client=self.client,
+            event=event,
+            data_dir=self.data_dir,
+            config=self.config,
+            text=text,
+            voice_id=voice_id,
+            speed=speed,
+            emotion=emotion
+        ):
+            yield msg
+    
+    # ==================== 文生图工具 ====================
+    
+    @filter.llm_tool(name="text_to_image")
+    async def text_to_image(
+        self,
+        event: AstrMessageEvent,
+        prompt: str,
+        aspect_ratio: Optional[str] = None,
+        n: Optional[int] = None
+    ):
+        '''根据文本描述生成图片。
+
+        Args:
+            prompt(string): 图片描述，详细描述想要生成的图片内容
+            aspect_ratio(string): 宽高比，可选值：1:1, 16:9, 9:16, 4:3, 3:4等
+            n(integer): 生成数量，1-9张，默认1张
+        '''
+        # 检查是否启用
+        if not self.config.get('enable_image', True):
+            async for msg in send_error(event, "图像生成功能未启用，请在配置中开启"):
+                yield msg
+            return
         
-        # 图像生成工具
-        if self.config.get('enable_image', True):
-            try:
-                # 文生图工具
-                text_to_image_tool = TextToImageTool(
-                    client=self.client,
-                    config=dict(self.config),
-                    data_dir=self.data_dir
-                )
-                self.context.add_llm_tools(text_to_image_tool)
-                logger.info("文生图工具已注册")
-                
-                # 图生图工具
-                image_to_image_tool = ImageToImageTool(
-                    client=self.client,
-                    config=dict(self.config),
-                    data_dir=self.data_dir
-                )
-                self.context.add_llm_tools(image_to_image_tool)
-                logger.info("图生图工具已注册")
-            except Exception as e:
-                logger.error(f"注册图像生成工具失败: {e}")
+        # 调用工具执行函数
+        async for msg in execute_text_to_image(
+            client=self.client,
+            event=event,
+            data_dir=self.data_dir,
+            config=self.config,
+            prompt=prompt,
+            aspect_ratio=aspect_ratio,
+            n=n
+        ):
+            yield msg
+    
+    # ==================== 图生图工具 ====================
+    
+    @filter.llm_tool(name="image_to_image")
+    async def image_to_image(
+        self,
+        event: AstrMessageEvent,
+        prompt: str,
+        reference_image_url: str,
+        aspect_ratio: Optional[str] = None,
+        n: Optional[int] = None
+    ):
+        '''基于参考图片生成新图片，保持人物形象一致性。
+
+        Args:
+            prompt(string): 图片描述，描述想要生成的新图片内容
+            reference_image_url(string): 参考图片的URL，需要包含清晰的人物主体
+            aspect_ratio(string): 宽高比，可选值：1:1, 16:9, 9:16, 4:3, 3:4等
+            n(integer): 生成数量，1-9张，默认1张
+        '''
+        # 检查是否启用
+        if not self.config.get('enable_image', True):
+            async for msg in send_error(event, "图像生成功能未启用，请在配置中开启"):
+                yield msg
+            return
         
-        # 视频生成工具
-        if self.config.get('enable_video', True):
-            try:
-                tool = VideoGenerationTool(
-                    client=self.client,
-                    config=dict(self.config),
-                    data_dir=self.data_dir
-                )
-                self.context.add_llm_tools(tool)
-                logger.info("视频生成工具已注册")
-            except Exception as e:
-                logger.error(f"注册视频生成工具失败: {e}")
+        # 调用工具执行函数
+        async for msg in execute_image_to_image(
+            client=self.client,
+            event=event,
+            data_dir=self.data_dir,
+            config=self.config,
+            prompt=prompt,
+            reference_image_url=reference_image_url,
+            aspect_ratio=aspect_ratio,
+            n=n
+        ):
+            yield msg
+    
+    # ==================== 视频生成工具 ====================
+    
+    @filter.llm_tool(name="generate_video")
+    async def generate_video(
+        self,
+        event: AstrMessageEvent,
+        prompt: str,
+        duration: Optional[int] = None,
+        resolution: Optional[str] = None
+    ):
+        '''根据文本描述生成视频。
+
+        Args:
+            prompt(string): 视频描述，详细描述想要生成的视频内容
+            duration(integer): 视频时长，可选6或10秒
+            resolution(string): 分辨率，可选：720P, 768P, 1080P
+        '''
+        # 检查是否启用
+        if not self.config.get('enable_video', True):
+            async for msg in send_error(event, "视频生成功能未启用，请在配置中开启"):
+                yield msg
+            return
         
-        # 音乐生成工具
-        if self.config.get('enable_music', True):
-            try:
-                tool = MusicGenerationTool(
-                    client=self.client,
-                    config=dict(self.config),
-                    data_dir=self.data_dir
-                )
-                self.context.add_llm_tools(tool)
-                logger.info("音乐生成工具已注册")
-            except Exception as e:
-                logger.error(f"注册音乐生成工具失败: {e}")
+        # 调用工具执行函数
+        async for msg in execute_generate_video(
+            client=self.client,
+            event=event,
+            data_dir=self.data_dir,
+            config=self.config,
+            prompt=prompt,
+            duration=duration,
+            resolution=resolution
+        ):
+            yield msg
+    
+    # ==================== 音乐生成工具 ====================
+    
+    @filter.llm_tool(name="generate_music")
+    async def generate_music(
+        self,
+        event: AstrMessageEvent,
+        prompt: str,
+        lyrics: Optional[str] = None,
+        is_instrumental: Optional[bool] = None,
+        lyrics_optimizer: Optional[bool] = None
+    ):
+        '''根据描述和歌词生成音乐。
+
+        Args:
+            prompt(string): 音乐风格描述，如：轻快的民谣风格、摇滚风格等
+            lyrics(string): 歌词内容（可选）
+            is_instrumental(boolean): 是否生成纯音乐，默认False
+            lyrics_optimizer(boolean): 是否自动生成歌词，默认False
+        '''
+        # 检查是否启用
+        if not self.config.get('enable_music', True):
+            async for msg in send_error(event, "音乐生成功能未启用，请在配置中开启"):
+                yield msg
+            return
+        
+        # 调用工具执行函数
+        async for msg in execute_generate_music(
+            client=self.client,
+            event=event,
+            data_dir=self.data_dir,
+            config=self.config,
+            prompt=prompt,
+            lyrics=lyrics,
+            is_instrumental=is_instrumental,
+            lyrics_optimizer=lyrics_optimizer
+        ):
+            yield msg
+    
+    # ==================== 帮助命令 ====================
     
     @filter.command("minimax_help")
     async def show_help(self, event: AstrMessageEvent):
@@ -146,6 +265,8 @@ class MiniMaxPlugin(Star):
 示例：
 • "用语音合成说：你好世界"
 • "生成一张图片：一只可爱的猫咪"
+• "基于这张图片 https://example.com/person.jpg 生成一张在海边的照片"
+• "生成一个视频：夕阳下的海滩"
 • "创作一首音乐：轻快的民谣风格"
 
 配置：
