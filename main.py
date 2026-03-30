@@ -2,12 +2,12 @@
 MiniMax 多模态生成器插件主类
 """
 
-from pathlib import Path
 from typing import Optional
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.star import Context, Star, register
+from astrbot.core.utils.astrbot_path import get_astrbot_data_path
 
 from .minimax_client import MiniMaxClient
 from .tools import (
@@ -54,8 +54,9 @@ class MiniMaxPlugin(Star):
         self.client = MiniMaxClient(api_key=api_key, base_url=base_url)
         logger.info(f"MiniMax 客户端已初始化，Base URL: {base_url}")
         
-        # 获取 data 目录
-        self.data_dir = Path(context.get_data_dir())
+        # 获取插件数据目录（AstrBot >= 4.9.2）
+        self.data_dir = get_astrbot_data_path() / "plugin_data" / self.name
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"插件数据目录: {self.data_dir}")
         
         logger.info("MiniMax 多模态生成器插件已加载")
