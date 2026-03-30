@@ -40,7 +40,15 @@ class MiniMaxPlugin(Star):
         """
         super().__init__(context)
         self.context: Context = context
-        self.config: dict = config if config is not None else (context.config or {})
+        
+        if config is not None:
+            self.config = config
+        elif hasattr(context, 'config') and context.config is not None:
+            self.config = context.config
+        elif hasattr(self, 'config') and self.config is not None:
+            pass
+        else:
+            self.config = {}
         
         # 验证必需配置
         api_key = self.config.get('api_key')
