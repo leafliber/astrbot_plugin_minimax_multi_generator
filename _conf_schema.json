@@ -1,0 +1,160 @@
+{
+  "api_key": {
+    "description": "MiniMax API Key",
+    "type": "string",
+    "hint": "在 MiniMax 开放平台获取：https://platform.minimaxi.com",
+    "obvious_hint": true
+  },
+  "base_url": {
+    "description": "API 基础地址",
+    "type": "string",
+    "default": "https://api.minimaxi.com",
+    "hint": "国内站：https://api.minimaxi.com，国际站：https://api.minimax.io"
+  },
+  "enable_speech": {
+    "description": "启用语音合成功能",
+    "type": "bool",
+    "default": true
+  },
+  "enable_image": {
+    "description": "启用图像生成功能",
+    "type": "bool",
+    "default": true
+  },
+  "enable_video": {
+    "description": "启用视频生成功能",
+    "type": "bool",
+    "default": true
+  },
+  "enable_music": {
+    "description": "启用音乐生成功能",
+    "type": "bool",
+    "default": true
+  },
+  "speech_config": {
+    "description": "语音合成配置",
+    "type": "object",
+    "items": {
+      "model": {
+        "description": "语音合成模型",
+        "type": "string",
+        "default": "speech-2.8-hd",
+        "hint": "可选：speech-2.8-hd, speech-2.8-turbo, speech-2.6-hd, speech-2.6-turbo"
+      },
+      "voice_id": {
+        "description": "默认音色 ID",
+        "type": "string",
+        "default": "male-qn-qingse",
+        "hint": "默认使用清新男声，可在 MiniMax 平台查看更多音色"
+      },
+      "speed": {
+        "description": "语速",
+        "type": "float",
+        "default": 1.0,
+        "hint": "范围：0.5-2.0"
+      },
+      "vol": {
+        "description": "音量",
+        "type": "float",
+        "default": 1.0,
+        "hint": "范围：0.1-10.0"
+      },
+      "pitch": {
+        "description": "音调",
+        "type": "int",
+        "default": 0,
+        "hint": "范围：-12 到 12"
+      },
+      "audio_format": {
+        "description": "音频格式",
+        "type": "string",
+        "default": "mp3",
+        "hint": "可选：mp3, pcm, flac, wav"
+      }
+    }
+  },
+  "image_config": {
+    "description": "图像生成配置",
+    "type": "object",
+    "items": {
+      "model": {
+        "description": "图像生成模型",
+        "type": "string",
+        "default": "image-01",
+        "hint": "可选：image-01, image-01-live"
+      },
+      "aspect_ratio": {
+        "description": "默认宽高比",
+        "type": "string",
+        "default": "1:1",
+        "hint": "可选：1:1, 16:9, 4:3, 3:2, 2:3, 3:4, 9:16, 21:9"
+      },
+      "n": {
+        "description": "单次生成数量",
+        "type": "int",
+        "default": 1,
+        "hint": "范围：1-9"
+      },
+      "response_format": {
+        "description": "返回格式",
+        "type": "string",
+        "default": "url",
+        "hint": "可选：url（24小时有效）, base64"
+      }
+    }
+  },
+  "video_config": {
+    "description": "视频生成配置",
+    "type": "object",
+    "items": {
+      "model": {
+        "description": "视频生成模型",
+        "type": "string",
+        "default": "MiniMax-Hailuo-2.3",
+        "hint": "可选：MiniMax-Hailuo-2.3, MiniMax-Hailuo-02"
+      },
+      "resolution": {
+        "description": "默认分辨率",
+        "type": "string",
+        "default": "720P",
+        "hint": "可选：720P, 768P, 1080P"
+      },
+      "duration": {
+        "description": "默认时长（秒）",
+        "type": "int",
+        "default": 6,
+        "hint": "可选：6 或 10（取决于模型）"
+      },
+      "poll_interval": {
+        "description": "轮询间隔（秒）",
+        "type": "int",
+        "default": 5,
+        "hint": "查询视频生成状态的间隔时间"
+      },
+      "max_poll_attempts": {
+        "description": "最大轮询次数",
+        "type": "int",
+        "default": 60,
+        "hint": "最多轮询次数，超过后返回超时错误"
+      }
+    }
+  },
+  "music_config": {
+    "description": "音乐生成配置",
+    "type": "object",
+    "items": {
+      "model": {
+        "description": "音乐生成模型",
+        "type": "string",
+        "default": "music-2.5+",
+        "hint": "可选：music-2.5+, music-2.5"
+      },
+      "audio_format": {
+        "description": "音频格式",
+        "type": "string",
+        "default": "mp3",
+        "hint": "输出音频格式"
+      }
+    }
+  }
+}

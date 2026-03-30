@@ -1,0 +1,11 @@
+name: astrbot_plugin_minimax_multi_generator
+display_name: MiniMax 多模态生成器
+version: 1.0.0
+author: Your Name
+description: 集成 MiniMax 语音合成、图像生成（文生图+图生图）、视频生成、音乐生成
+repo_url: https://github.com/yourusername/astrbot_plugin_minimax_multi_generator
+support_platforms:
+  - aiocqhttp
+  - telegram
+  - discord
+astrbot_version: ">=4.16,<5"
