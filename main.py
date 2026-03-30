@@ -39,6 +39,7 @@ class MiniMaxPlugin(Star):
             config: 插件配置
         """
         super().__init__(context, config)
+        self.config = config or {}  # Star 基类不会自动设置 self.config
         
         # 验证必需配置
         api_key = self.config.get('api_key')
