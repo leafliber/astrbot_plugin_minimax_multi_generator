@@ -113,7 +113,7 @@ class MiniMaxPlugin(Star):
         Args:
             prompt(string): 图片描述，详细描述想要生成的图片内容
             aspect_ratio(string): 宽高比，可选值：1:1, 16:9, 9:16, 4:3, 3:4等
-            n(integer): 生成数量，1-9张，默认1张
+            n(number): 生成数量，1-9张，默认1张
         '''
         # 检查是否启用
         if not self.config.get('enable_image', True):
@@ -150,7 +150,7 @@ class MiniMaxPlugin(Star):
             prompt(string): 图片描述，描述想要生成的新图片内容
             reference_image_url(string): 参考图片的URL，需要包含清晰的人物主体
             aspect_ratio(string): 宽高比，可选值：1:1, 16:9, 9:16, 4:3, 3:4等
-            n(integer): 生成数量，1-9张，默认1张
+            n(number): 生成数量，1-9张，默认1张
         '''
         # 检查是否启用
         if not self.config.get('enable_image', True):
@@ -185,7 +185,7 @@ class MiniMaxPlugin(Star):
 
         Args:
             prompt(string): 视频描述，详细描述想要生成的视频内容
-            duration(integer): 视频时长，可选6或10秒
+            duration(number): 视频时长，可选6或10秒
             resolution(string): 分辨率，可选：720P, 768P, 1080P
         '''
         # 检查是否启用
