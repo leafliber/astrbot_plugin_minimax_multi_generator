@@ -38,17 +38,16 @@ class MiniMaxPlugin(Star):
             context: AstrBot 上下文
             config: 插件配置
         """
-        super().__init__(context)
-        self.config = config
+        super().__init__(context, config)
         
         # 验证必需配置
-        api_key = config.get('api_key')
+        api_key = self.config.get('api_key')
         if not api_key:
             logger.error("未配置 MiniMax API Key，插件将无法正常工作")
             return
         
         # 获取配置
-        base_url = config.get('base_url', 'https://api.minimaxi.com')
+        base_url = self.config.get('base_url', 'https://api.minimaxi.com')
         
         # 初始化客户端
         self.client = MiniMaxClient(api_key=api_key, base_url=base_url)
