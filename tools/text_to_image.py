@@ -36,6 +36,9 @@ async def execute_text_to_image(
         n: 生成数量
     """
     try:
+        # 调试：打印 config 类型
+        logger.info(f"config type: {type(config)}, config: {config}")
+        
         # 获取配置
         image_config = config.get('image_config', {})
         

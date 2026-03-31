@@ -137,7 +137,7 @@ class MiniMaxClient:
         # 添加其他可选参数
         payload.update(kwargs)
         
-        return await self._request("POST", "/v1/t2a_v2", json_data=payload)
+        return await self._request("POST", "/v1/t2a_v2", json_data=payload, return_binary=True)
     
     # ==================== 图像生成 API ====================
     
@@ -389,4 +389,4 @@ class MiniMaxClient:
         # 添加其他可选参数
         payload.update(kwargs)
         
-        return await self._request("POST", "/v1/music_generation", json_data=payload)
+        return await self._request("POST", "/v1/music_generation", json_data=payload, return_binary=True)
