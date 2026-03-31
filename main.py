@@ -22,10 +22,10 @@ from .tools import (
 
 @register(
     "minimax_multi_generator",
-    "Your Name",
+    "Leafiber",
     "MiniMax 多模态生成器 - 支持语音合成、图像生成、视频生成和音乐生成",
     "1.0.0",
-    "https://github.com/yourusername/astrbot_plugin_minimax_multi_generator"
+    "https://github.com/leafliber/astrbot_plugin_minimax_multi_generator"
 )
 class MiniMaxPlugin(Star):
     """MiniMax 多模态生成器插件"""
