@@ -40,13 +40,27 @@ class MiniMaxPlugin(Star):
         """
         super().__init__(context)
         self.context: Context = context
-        
+
         if config is not None:
-            self.config = config
+            if isinstance(config, dict):
+                self.config = config
+            elif hasattr(config, '__dict__'):
+                self.config = vars(config)
+            else:
+                try:
+                    self.config = dict(config)
+                except:
+                    self.config = {}
         elif hasattr(context, 'config') and context.config is not None:
-            self.config = context.config
-        elif hasattr(self, 'config') and self.config is not None:
-            pass
+            if isinstance(context.config, dict):
+                self.config = context.config
+            elif hasattr(context.config, '__dict__'):
+                self.config = vars(context.config)
+            else:
+                try:
+                    self.config = dict(context.config)
+                except:
+                    self.config = {}
         else:
             self.config = {}
         
