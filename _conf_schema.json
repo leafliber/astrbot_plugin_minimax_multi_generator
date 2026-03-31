@@ -2,8 +2,7 @@
   "api_key": {
     "description": "MiniMax API Key",
     "type": "string",
-    "hint": "在 MiniMax 开放平台获取：https://platform.minimaxi.com",
-    "obvious_hint": true
+    "hint": "在 MiniMax 开放平台获取：https://platform.minimaxi.com"
   },
   "base_url": {
     "description": "API 基础地址",
