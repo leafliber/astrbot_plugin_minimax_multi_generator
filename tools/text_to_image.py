@@ -58,9 +58,11 @@ async def execute_text_to_image(
         )
         
         # 处理返回的图片
+        logger.info(f"API 返回结果: {result}")
+        
         if 'data' in result:
             images = result['data']
-            logger.info(f"成功生成 {len(images)} 张图片")
+            logger.info(f"data 类型: {type(images)}, data 内容: {images}")
             
             for idx, img_data in enumerate(images):
                 if 'url' in img_data:
