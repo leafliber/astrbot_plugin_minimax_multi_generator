@@ -2,7 +2,7 @@
 MiniMax 多模态生成器插件主类
 """
 
-from typing import Any
+from typing import Any, Optional
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
