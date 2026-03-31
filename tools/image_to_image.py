@@ -2,16 +2,15 @@
 图生图工具实现
 """
 
-import base64
 from pathlib import Path
-from typing import Optional, AsyncGenerator, Any, Dict
+from typing import Optional, AsyncGenerator, Any
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent
 
 from ..minimax_client import MiniMaxClient
-from .base import save_file, send_image, send_error
+from .base import send_error
 
 
 async def execute_image_to_image(
@@ -59,19 +58,19 @@ async def execute_image_to_image(
         
         # 处理返回的图片（同文生图）
         if 'data' in result:
-            images = result['data']
-            logger.info(f"成功生成 {len(images)} 张图片")
+            data = result['data']
             
-            for idx, img_data in enumerate(images):
-                if 'url' in img_data:
-                    chain = [Comp.Image.fromURL(img_data['url'])]
+            # MiniMax API 返回格式: {"data": {"image_urls": ["url1", "url2"]}}
+            if 'image_urls' in data:
+                image_urls = data['image_urls']
+                logger.info(f"成功生成 {len(image_urls)} 张图片")
+                
+                for url in image_urls:
+                    chain = [Comp.Image.fromURL(url)]
                     yield event.chain_result(chain)
-                elif 'b64_json' in img_data:
-                    img_bytes = base64.b64decode(img_data['b64_json'])
-                    file_path = save_file(img_bytes, data_dir, 'png', prefix='image')
-                    
-                    async for msg in send_image(event, file_path):
-                        yield msg
+            else:
+                async for msg in send_error(event, "API 返回数据格式错误：缺少 image_urls"):
+                    yield msg
         else:
             async for msg in send_error(event, "API 返回数据格式错误"):
                 yield msg

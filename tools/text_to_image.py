@@ -2,16 +2,15 @@
 文生图工具实现
 """
 
-import base64
 from pathlib import Path
-from typing import Optional, AsyncGenerator, Any, Dict
+from typing import Optional, AsyncGenerator, Any
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent
 
 from ..minimax_client import MiniMaxClient
-from .base import save_file, send_image, send_error
+from .base import send_error
 
 
 async def execute_text_to_image(
@@ -36,9 +35,6 @@ async def execute_text_to_image(
         n: 生成数量
     """
     try:
-        # 调试：打印 config 类型
-        logger.info(f"config type: {type(config)}, config: {config}")
-        
         # 获取配置
         image_config = config.get('image_config', {})
         
@@ -58,24 +54,20 @@ async def execute_text_to_image(
         )
         
         # 处理返回的图片
-        logger.info(f"API 返回结果: {result}")
-        
         if 'data' in result:
-            images = result['data']
-            logger.info(f"data 类型: {type(images)}, data 内容: {images}")
+            data = result['data']
             
-            for idx, img_data in enumerate(images):
-                if 'url' in img_data:
-                    # 如果返回 URL，直接发送
-                    chain = [Comp.Image.fromURL(img_data['url'])]
+            # MiniMax API 返回格式: {"data": {"image_urls": ["url1", "url2"]}}
+            if 'image_urls' in data:
+                image_urls = data['image_urls']
+                logger.info(f"成功生成 {len(image_urls)} 张图片")
+                
+                for url in image_urls:
+                    chain = [Comp.Image.fromURL(url)]
                     yield event.chain_result(chain)
-                elif 'b64_json' in img_data:
-                    # 如果返回 base64，保存后发送
-                    img_bytes = base64.b64decode(img_data['b64_json'])
-                    file_path = save_file(img_bytes, data_dir, 'png', prefix='image')
-                    
-                    async for msg in send_image(event, file_path):
-                        yield msg
+            else:
+                async for msg in send_error(event, "API 返回数据格式错误：缺少 image_urls"):
+                    yield msg
         else:
             async for msg in send_error(event, "API 返回数据格式错误"):
                 yield msg
