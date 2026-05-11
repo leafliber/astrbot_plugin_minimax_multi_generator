@@ -9,11 +9,7 @@ from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent
 
 from ..minimax_client import MiniMaxClient
-<<<<<<< HEAD
 from .base import hex_to_bytes, send_file_from_bytes, send_error
-=======
-from .base import save_file, send_file, send_error
->>>>>>> e2f3d5d55dc506b123d3a30129c1c1fd98d67e01
 
 
 async def execute_generate_music(
@@ -60,7 +56,6 @@ async def execute_generate_music(
         )
         
         # 提取音频数据
-<<<<<<< HEAD
         if 'data' in result and 'audio' in result['data']:
             audio_hex = result['data']['audio']
             audio_bytes = hex_to_bytes(audio_hex)
@@ -72,18 +67,6 @@ async def execute_generate_music(
         else:
             async for msg in send_error(event, "API 返回数据格式错误"):
                 yield msg
-=======
-        audio_bytes = result
-        
-        # 保存文件
-        file_path = save_file(audio_bytes, data_dir, 'mp3', prefix='music')
-        
-        # 发送文件
-        logger.info(f"音乐生成完成，文件大小: {len(audio_bytes)} 字节")
-        
-        async for msg in send_file(event, file_path, "music.mp3"):
-            yield msg
->>>>>>> e2f3d5d55dc506b123d3a30129c1c1fd98d67e01
                 
     except Exception as e:
         async for msg in send_error(event, str(e)):
