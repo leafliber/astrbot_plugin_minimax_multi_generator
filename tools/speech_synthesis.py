@@ -9,7 +9,7 @@ from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent
 
 from ..minimax_client import MiniMaxClient
-from .base import save_file, hex_to_bytes, send_file, send_error
+from .base import hex_to_bytes, send_record_from_bytes, send_error
 
 
 async def execute_text_to_speech(
@@ -45,7 +45,7 @@ async def execute_text_to_speech(
         final_speed = speed if speed is not None else speech_config.get('speed', 1.0)
         vol = speech_config.get('vol', 1.0)
         pitch = speech_config.get('pitch', 0)
-        audio_format = speech_config.get('audio_format', 'mp3')
+        audio_format = speech_config.get('audio_format', 'wav')
         
         logger.info(f"开始语音合成，文本长度: {len(text)} 字符")
         
@@ -66,14 +66,9 @@ async def execute_text_to_speech(
             audio_hex = result['data']['audio']
             audio_bytes = hex_to_bytes(audio_hex)
             
-            # 保存文件
-            file_path = save_file(audio_bytes, data_dir, audio_format, prefix="speech")
-            
-            # 发送文件
             logger.info(f"语音合成完成，文件大小: {len(audio_bytes)} 字节")
             
-            # 使用文件形式发送（因为 MP3 不是 WAV）
-            async for msg in send_file(event, file_path, f"speech.{audio_format}"):
+            async for msg in send_record_from_bytes(event, audio_bytes):
                 yield msg
         else:
             async for msg in send_error(event, "API 返回数据格式错误"):

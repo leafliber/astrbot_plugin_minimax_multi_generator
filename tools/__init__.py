@@ -9,6 +9,8 @@ from .base import (
     send_image,
     send_video,
     send_file,
+    send_file_from_bytes,
+    send_record_from_bytes,
     send_text,
     send_error,
 )
@@ -26,6 +28,8 @@ __all__ = [
     'send_image',
     'send_video',
     'send_file',
+    'send_file_from_bytes',
+    'send_record_from_bytes',
     'send_text',
     'send_error',
     # 工具执行函数

@@ -44,7 +44,7 @@
       "voice_id": {
         "description": "默认音色 ID",
         "type": "string",
-        "default": "male-qn-qingse",
+        "default": "tianxin_xiaoling",
         "hint": "默认使用清新男声，可在 MiniMax 平台查看更多音色"
       },
       "speed": {
@@ -68,8 +68,8 @@
       "audio_format": {
         "description": "音频格式",
         "type": "string",
-        "default": "mp3",
-        "hint": "可选：mp3, pcm, flac, wav"
+        "default": "wav",
+        "hint": "可选：wav, mp3, pcm, flac。推荐 wav 以获得最佳语音消息兼容性"
       }
     }
   },

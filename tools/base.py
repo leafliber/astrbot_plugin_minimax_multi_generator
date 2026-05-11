@@ -3,6 +3,7 @@ MiniMax 工具辅助函数
 提供文件保存和数据处理功能
 """
 
+import base64
 import os
 import uuid
 from datetime import datetime
@@ -60,6 +61,20 @@ def hex_to_bytes(hex_string: str) -> bytes:
     except ValueError as e:
         logger.error(f"hex 解码失败: {e}")
         raise ValueError(f"无效的 hex 编码: {e}")
+
+
+async def send_record_from_bytes(event: AstrMessageEvent, audio_bytes: bytes):
+    """通过 base64 编码发送语音消息，避免跨容器文件路径不可访问的问题"""
+    bs64_data = base64.b64encode(audio_bytes).decode("utf-8")
+    chain = [Comp.Record.fromBase64(bs64_data)]
+    yield event.chain_result(chain)
+
+
+async def send_file_from_bytes(event: AstrMessageEvent, file_bytes: bytes, filename: str):
+    """通过 base64 编码发送文件消息，避免跨容器文件路径不可访问的问题"""
+    bs64_data = base64.b64encode(file_bytes).decode("utf-8")
+    chain = [Comp.File(file=f"base64://{bs64_data}", name=filename)]
+    yield event.chain_result(chain)
 
 
 async def send_image(event: AstrMessageEvent, file_path: str):
