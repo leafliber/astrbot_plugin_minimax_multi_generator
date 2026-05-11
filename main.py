@@ -2,7 +2,9 @@
 MiniMax 多模态生成器插件主类
 """
 
-from typing import Optional
+from pathlib import Path
+
+from typing import Any, Optional
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
@@ -22,10 +24,10 @@ from .tools import (
 
 @register(
     "minimax_multi_generator",
-    "Your Name",
+    "Leafiber",
     "MiniMax 多模态生成器 - 支持语音合成、图像生成、视频生成和音乐生成",
     "1.0.0",
-    "https://github.com/yourusername/astrbot_plugin_minimax_multi_generator"
+    "https://github.com/leafliber/astrbot_plugin_minimax_multi_generator"
 )
 class MiniMaxPlugin(Star):
     """MiniMax 多模态生成器插件"""
@@ -33,15 +35,15 @@ class MiniMaxPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         """
         初始化插件
-        
+
         Args:
-            context: AstrBot 上下文
-            config: 插件配置
+            context: AstrBot 插件上下文
+            config: AstrBot 用户配置
         """
-        super().__init__(context, config)
-        self.config = config or {}  # Star 基类不会自动设置 self.config
-        
-        # 验证必需配置
+        super().__init__(context)
+        self.context: Context = context
+        self.config: AstrBotConfig = config
+
         api_key = self.config.get('api_key')
         if not api_key:
             logger.error("未配置 MiniMax API Key，插件将无法正常工作")
@@ -55,7 +57,7 @@ class MiniMaxPlugin(Star):
         logger.info(f"MiniMax 客户端已初始化，Base URL: {base_url}")
         
         # 获取插件数据目录（AstrBot >= 4.9.2）
-        self.data_dir = get_astrbot_data_path() / "plugin_data" / self.name
+        self.data_dir = Path(get_astrbot_data_path()) / "plugin_data" / self.name
         self.data_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"插件数据目录: {self.data_dir}")
         
